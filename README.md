@@ -8,7 +8,7 @@ JavaFx 공식: https://openjfx.io/
   
 ## ⚙️ 개발환경  
  
-• 언어: java  
+• 언어: Java  
 • IDE: Eclips  
 • VCS: Github desktop  
   
