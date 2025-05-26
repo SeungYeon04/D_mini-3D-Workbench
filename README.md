@@ -3,7 +3,11 @@ url: 완성 후 오픈 예정
   
 ## 🖥 프로젝트 소개  
 
+이것은 JavaFx 라는 GUI를 사용한  
+시각화 DB관리 워크벤치 미니 프로젝트입니다.  
+  
 JavaFx 공식: https://openjfx.io/  
+  
 사용할 라이브러리: 1. JavaFX (UI)  
 2. MySQL Connector/J (DB 연결용)  
 3. [ObjectGraphVisualization](https://github.com/Nurtak/ObjectGraphVisualization)  
