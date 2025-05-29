@@ -42,7 +42,7 @@ ex) javac --module-path "C:\javafx-sdk-24.0.1\lib" --add-modules javafx.controls
   
 ## ⚙️ 개발환경  
  
-• 언어: Java  
+• CODE: Java  
 • IDE: Eclips  
 • VCS: Github desktop  
   
