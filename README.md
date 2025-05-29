@@ -27,6 +27,19 @@ MySQL을 명령을 쳐서, 버튼을 눌러서
 초보자용 워크벤치 프로젝트입니다.  
 (현재 진행형입니다. 2025)  
   
+```
+JavaFX는 JDK에서 분리되어 외부 라이브러리로 사용하므로, 
+따라서 이클립스로 run할 때 --module-path와 --add-modules를 명시해야합니다. 
+
+# Project 실행 전 주의사항
+1. 가능하면 Java 21 이상 설치 
+2. javafx-sdk-24.0.1 다운로드: https://gluonhq.com/products/javafx/
+3. VM 옵션 (Eclips -> Run Configurations ->  VM arguments) :
+ --module-path [자신의 JavaFX lib 경로] --add-modules javafx.controls,javafx.graphics
+
+ex) javac --module-path "C:\javafx-sdk-24.0.1\lib" --add-modules javafx.controls,javafx.graphics -encoding UTF-8 -d bin src/pack/MainApp02.java
+```
+  
 ## ⚙️ 개발환경  
  
 • 언어: Java  
