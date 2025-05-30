@@ -4,24 +4,17 @@ import java.sql.ResultSet;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Group;
-import javafx.scene.PerspectiveCamera;
-import javafx.scene.SceneAntialiasing;
-import javafx.scene.SubScene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.Tooltip;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
+import javafx.scene.*;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
-import javafx.scene.shape.Box;
-import javafx.scene.shape.Line;
+import javafx.scene.shape.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
-
+import javafx.util.Duration;
 
 public class UIRenderer {
 
@@ -30,16 +23,17 @@ public class UIRenderer {
     private static Rotate rotateX = new Rotate(0, Rotate.X_AXIS);
     private static Rotate rotateY = new Rotate(0, Rotate.Y_AXIS);
 
-    public static BorderPane buildUI() {
+    public static StackPane buildUI() {
         BorderPane root = new BorderPane();
+        StackPane overlay = new StackPane();
+        overlay.getChildren().add(root); // BorderPane를 아래에 깔기
 
         // 왼쪽 UI
         Left_UI leftPanel = new Left_UI();
         root.setLeft(leftPanel);
 
-        // 3D 박스 그룹
+        // 3D 시각화
         Group group3D = new Group();
-
         try {
             ResultSet rs = DBManager.getStudentData();
             int i = 0;
@@ -58,7 +52,6 @@ public class UIRenderer {
 
                 group3D.getChildren().addAll(box, label);
 
-                // 예시 의존선
                 if (i > 0) {
                     Line line = new Line(0, (i - 1) * 100, 0, i * 100);
                     line.setStroke(Color.RED);
@@ -71,31 +64,48 @@ public class UIRenderer {
             e.printStackTrace();
         }
 
-        // ✅ group3D는 회전만 담당하고, 위치 이동은 worldGroup으로
         Group worldGroup = new Group();
         group3D.getTransforms().addAll(rotateX, rotateY);
         worldGroup.getChildren().add(group3D);
 
-        // 카메라
         PerspectiveCamera camera = new PerspectiveCamera(true);
         camera.setTranslateZ(-1000);
         camera.setNearClip(0.1);
         camera.setFarClip(2000);
 
-        // SubScene
         SubScene subScene = new SubScene(worldGroup, 800, 600, true, SceneAntialiasing.BALANCED);
         subScene.setCamera(camera);
         subScene.setFill(Color.WHITESMOKE);
 
-        // 🖱 마우스 컨트롤
         enableMouseControl(worldGroup, subScene, camera);
 
         root.setCenter(subScene);
-        
-  
 
-           
-           return root;
+        // ✅ 오른쪽 상단 버튼 오버레이
+        HBox topRight = new HBox(10);
+        topRight.setAlignment(Pos.TOP_RIGHT);
+        topRight.setPadding(new Insets(10));
+        topRight.setPickOnBounds(false);
+
+        Button helpBtn = new Button("?");
+        Button refreshBtn = new Button("🔄");
+
+        helpBtn.setStyle("-fx-font-size: 14px; -fx-background-radius: 20px;");
+        refreshBtn.setStyle("-fx-font-size: 14px; -fx-background-radius: 20px;");
+        Tooltip tooltip = new Tooltip("💡 마우스로 회전\nSHIFT+드래그 이동\n휠로 줌인/아웃");
+        tooltip.setShowDelay(Duration.ZERO);
+        tooltip.setHideDelay(Duration.ZERO);
+        Tooltip.install(helpBtn, tooltip);
+
+        refreshBtn.setOnAction(e -> {
+            System.out.println("🔄 새로고침 로직 실행");
+        });
+
+        topRight.getChildren().addAll(helpBtn, refreshBtn);
+        StackPane.setAlignment(topRight, Pos.TOP_RIGHT);
+        overlay.getChildren().add(topRight);
+
+        return overlay; // 이제 StackPane 반환
     }
 
     private static void enableMouseControl(Group worldGroup, SubScene scene, PerspectiveCamera camera) {
@@ -110,11 +120,9 @@ public class UIRenderer {
             double dy = e.getSceneY() - mouseOldY;
 
             if (isShiftDown) {
-                // 🖐 Shift 누른 경우 = "두 손"
                 camera.setTranslateX(camera.getTranslateX() - dx);
                 camera.setTranslateY(camera.getTranslateY() - dy);
             } else {
-                // 👆 일반 드래그는 회전
                 rotateX.setAngle(rotateX.getAngle() - dy * 0.3);
                 rotateY.setAngle(rotateY.getAngle() + dx * 0.3);
             }
@@ -122,7 +130,5 @@ public class UIRenderer {
             mouseOldX = e.getSceneX();
             mouseOldY = e.getSceneY();
         });
-    
-
     }
-}
+}  
