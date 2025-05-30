@@ -26,10 +26,10 @@ public class DBManager {
             System.out.println("✅ DB 연결 성공");
 
             String msg = """
-                (SELECT * FROM student 는 기본출력입니다.)
-                1. INSERT INTO student VALUES(1, '테스트값', '10101', 11);
-                2. UPDATE student SET id='2' WHERE name='테스트값';
-                3. DELETE FROM student WHERE id='2';
+                (SELECT * FROM student 는 기본출력입니다.)\n
+                1. INSERT INTO student VALUES(1, '테스트값', '10101', 11);\n
+                2. UPDATE student SET id='2' WHERE name='테스트값';\n
+                3. DELETE FROM student WHERE id='2';\n
                 """;
 
             while (true) {
