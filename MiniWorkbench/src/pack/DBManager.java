@@ -5,31 +5,35 @@ import java.util.Scanner;
 
 public class DBManager {
 
-	 	public static final String URL = "jdbc:mysql://localhost:3306/jjack?serverTimezone=UTC";
-	    public static final String USER = "root";
-	    public static final String PASSWORD = "1234";
+	public static final String URL = "jdbc:mysql://localhost:3306/pos?serverTimezone=UTC&useUnicode=true&characterEncoding=UTF8";
 
-    // 📦 학생 정보 반환 (MainApp02 등에서 사용)
-    public static ResultSet getStudentData() throws SQLException {
-        Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
-        Statement stmt = conn.createStatement();
-        return stmt.executeQuery("SELECT * FROM student");
+    public static final String USER = "root";
+    public static final String PASSWORD = "1234";
+
+    // 📦 item 테이블 정보 반환
+    public static ResultSet getItemData() throws SQLException {
+    	Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+    	Statement stmt = conn.createStatement();
+    	stmt.execute("USE pos");
+
+        return stmt.executeQuery("SELECT * FROM item");
     }
 
-    // 🧪 콘솔에서 명령어 입력받아 실행 (기존 Task06 기능 통합)
+    // 🧪 콘솔 기반 DB 명령어 실행
     public static void runConsoleQueryMode() {
         try (
             Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
             Scanner sc = new Scanner(System.in)
         ) {
             Statement stmt = conn.createStatement();
-            System.out.println("✅ DB 연결 성공");
+            stmt.execute("USE pos");
+            System.out.println("✅ 'pos' DB 연결 성공");
 
             String msg = """
-                (SELECT * FROM student 는 기본출력입니다.)\n
-                1. INSERT INTO student VALUES(1, '테스트값', '10101', 11);\n
-                2. UPDATE student SET id='2' WHERE name='테스트값';\n
-                3. DELETE FROM student WHERE id='2';\n
+                (SELECT * FROM item 은 기본출력입니다.)\n
+                1. INSERT INTO item VALUES(1, '테스트상품', 50, 10000);\n
+                2. UPDATE item SET item_stock=99 WHERE item_name='테스트상품';\n
+                3. DELETE FROM item WHERE item_name='테스트상품';\n
                 """;
 
             while (true) {
@@ -43,18 +47,22 @@ public class DBManager {
                 }
 
                 try {
-                    stmt.executeUpdate(input); // DML
+                    stmt.executeUpdate(input); // DML 수행
+                    System.out.println("✅ 쿼리 실행 완료");
                 } catch (SQLException e) {
                     System.out.println("❌ 쿼리 실행 오류: " + e.getMessage());
+                    continue;
                 }
 
-                ResultSet rs = stmt.executeQuery("SELECT * FROM student");
+                // 실행 후 item 테이블 다시 출력
+                ResultSet rs = stmt.executeQuery("SELECT * FROM item");
+                System.out.println("=== 현재 상품 목록 ===");
                 while (rs.next()) {
                     String id = rs.getString("id");
-                    String name = rs.getString("name");
-                    String dept = rs.getString("dept");
-                    String score = rs.getString("score");
-                    System.out.printf("아이디: %s, 이름: %s, 학과: %s, 점수: %s%n", id, name, dept, score);
+                    String name = rs.getString("item_name");
+                    String stock = rs.getString("item_stock");
+                    String price = rs.getString("item_price");
+                    System.out.printf("▶ ID: %s | 이름: %s | 재고량: %s | 가격: %s\n", id, name, stock, price);
                 }
             }
 

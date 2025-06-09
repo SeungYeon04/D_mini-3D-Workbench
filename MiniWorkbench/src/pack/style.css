@@ -1,0 +1,27 @@
+* {
+    -fx-font-family: 'GangwonEduAll Bold';  /* ✅ 이게 폰트의 실제 이름 */
+    -fx-font-size: 14px;
+}
+
+
+/* 왼쪽 패널 스타일 */
+.left-panel {
+    -fx-background-color: #f0f0f0;
+    -fx-padding: 10px;
+    -fx-spacing: 10px;
+}
+
+/* 버튼 스타일 */
+.button {
+    -fx-background-color: #4CAF50;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8px;
+}
+
+/* 텍스트 영역 */
+.text-area, .text-field {
+    -fx-background-color: white;
+    -fx-border-color: #ccc;
+    -fx-border-radius: 4px;
+}
