@@ -12,26 +12,34 @@ public class Left_UI extends VBox {
     private TextArea logArea;
 
     public Left_UI() {
+    	this.getStyleClass().add("left-panel");
+
+    	
         setPadding(new Insets(10));
         setSpacing(10);
-        setPrefWidth(250); // 고정 너비
+        setPrefWidth(250); // 왼쪽 너비 제한
 
         inputArea = new TextArea();
         inputArea.setPromptText("SQL 명령어 입력 (예: SELECT * FROM student;)");
-        inputArea.setPrefRowCount(4);
+        inputArea.setPrefRowCount(3); // 줄 수 줄임
 
         runButton = new Button("실행");
         runButton.setMaxWidth(Double.MAX_VALUE);
-
         logArea = new TextArea();
         logArea.setEditable(false);
         logArea.setPromptText("실행 결과 또는 오류 로그");
         logArea.setWrapText(true);
-        logArea.setPrefHeight(400);
+        logArea.setPrefHeight(160); // ✅ 로그창 높이 줄임
 
         runButton.setOnAction(e -> executeSQL());
 
-        getChildren().addAll(new Label("💬 SQL 명령 입력"), inputArea, runButton, new Label("🧾 로그 출력"), logArea);
+        getChildren().addAll(
+            new Label("💬 SQL 명령 입력"),
+            inputArea,
+            runButton,
+            new Label("🧾 로그 출력"),
+            logArea
+        );
     }
 
     private void executeSQL() {
@@ -49,10 +57,10 @@ public class Left_UI extends VBox {
                 logArea.appendText("✅ SELECT 결과:\n");
                 while (rs.next()) {
                     String id = rs.getString("id");
-                    String name = rs.getString("name");
-                    String dept = rs.getString("dept");
-                    String score = rs.getString("score");
-                    logArea.appendText("▶ " + id + " | " + name + " | " + dept + " | " + score + "\n");
+                    String item_name = rs.getString("item_name");
+                    String item_stock = rs.getString("item_stock");
+                    String item_price = rs.getString("item_price");
+                    logArea.appendText("▶ " + id + " | " + item_name + " | " + item_stock + " | " + item_price + "\n");
                 }
             } else {
                 int updated = stmt.executeUpdate(sql);
