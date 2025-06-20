@@ -1,73 +1,81 @@
-package pack;
+package pack; // 패키지 선언
 
-import java.sql.*;
-import java.util.Scanner;
+import java.sql.*; // JDBC 관련 클래스 임포트
+import java.util.Scanner; // 콘솔 입력을 위한 Scanner 임포트
 
 public class DBManager {
 
+    // 데이터베이스 연결을 위한 상수 선언
 	public static final String URL = "jdbc:mysql://localhost:3306/pos?serverTimezone=UTC&useUnicode=true&characterEncoding=UTF8";
+    public static final String USER = "root"; // DB 사용자 이름
+    public static final String PASSWORD = "1234"; // DB 비밀번호
 
-    public static final String USER = "root";
-    public static final String PASSWORD = "1234";
-
-    // 📦 item 테이블 정보 반환
+    // 📦 item 테이블 정보 반환 메서드
     public static ResultSet getItemData() throws SQLException {
+    	// DB 연결
     	Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
     	Statement stmt = conn.createStatement();
-    	stmt.execute("USE pos");
 
+    	// ✅ 사용할 데이터베이스 선택
+    	//stmt.execute("USE pos");
+
+        // item 테이블의 모든 데이터를 조회해서 반환
         return stmt.executeQuery("SELECT * FROM item");
     }
 
-    // 🧪 콘솔 기반 DB 명령어 실행
+    // 🧪 콘솔 기반 DB 명령어 실행 모드
     public static void runConsoleQueryMode() {
         try (
-            Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
-            Scanner sc = new Scanner(System.in)
+            Connection conn = DriverManager.getConnection(URL, USER, PASSWORD); // DB 연결
+            Scanner scanner = new Scanner(System.in); // 사용자 입력 스캐너
         ) {
-            Statement stmt = conn.createStatement();
+            Statement stmt = conn.createStatement(); // SQL 명령을 실행할 Statement 객체 생성
+
+            // pos 데이터베이스 사용
             stmt.execute("USE pos");
-            System.out.println("✅ 'pos' DB 연결 성공");
 
-            String msg = """
-                (SELECT * FROM item 은 기본출력입니다.)\n
-                1. INSERT INTO item VALUES(1, '테스트상품', 50, 10000);\n
-                2. UPDATE item SET item_stock=99 WHERE item_name='테스트상품';\n
-                3. DELETE FROM item WHERE item_name='테스트상품';\n
-                """;
-
+            System.out.println("📦 DB 콘솔모드 (종료하려면 'exit')");
             while (true) {
-                System.out.println("*** DB 프로그램 시작 ***");
-                System.out.println("ex) " + msg + "\ncmd 명령어를 입력해주세요 (종료: end): ");
-                String input = sc.nextLine().trim();
+                System.out.print("SQL > "); // 사용자에게 SQL 입력 요청
+                String input = scanner.nextLine(); // 입력 받기
 
-                if (input.equalsIgnoreCase("end")) {
-                    System.out.println("시스템을 종료합니다.");
-                    break;
-                }
+                // exit 입력 시 종료
+                if (input.equalsIgnoreCase("exit")) break;
 
                 try {
-                    stmt.executeUpdate(input); // DML 수행
-                    System.out.println("✅ 쿼리 실행 완료");
-                } catch (SQLException e) {
-                    System.out.println("❌ 쿼리 실행 오류: " + e.getMessage());
-                    continue;
-                }
+                    // 입력된 SQL이 SELECT문인지 판별
+                    if (input.toLowerCase().startsWith("select")) {
+                        // SELECT 결과 출력
+                        ResultSet rs = stmt.executeQuery(input);
+                        ResultSetMetaData metaData = rs.getMetaData();
+                        int columnCount = metaData.getColumnCount();
 
-                // 실행 후 item 테이블 다시 출력
-                ResultSet rs = stmt.executeQuery("SELECT * FROM item");
-                System.out.println("=== 현재 상품 목록 ===");
-                while (rs.next()) {
-                    String id = rs.getString("id");
-                    String name = rs.getString("item_name");
-                    String stock = rs.getString("item_stock");
-                    String price = rs.getString("item_price");
-                    System.out.printf("▶ ID: %s | 이름: %s | 재고량: %s | 가격: %s\n", id, name, stock, price);
+                        // 컬럼 이름 출력
+                        for (int i = 1; i <= columnCount; i++) {
+                            System.out.print(metaData.getColumnName(i) + "\t");
+                        }
+                        System.out.println();
+
+                        // 결과 행 출력
+                        while (rs.next()) {
+                            for (int i = 1; i <= columnCount; i++) {
+                                System.out.print(rs.getString(i) + "\t");
+                            }
+                            System.out.println();
+                        }
+                    } else {
+                        // SELECT 외의 쿼리 실행 (INSERT, UPDATE, DELETE 등)
+                        int result = stmt.executeUpdate(input);
+                        System.out.println("✅ 실행됨, 영향받은 행 수: " + result);
+                    }
+                } catch (SQLException e) {
+                    // SQL 실행 중 예외 처리
+                    System.out.println("❌ 오류: " + e.getMessage());
                 }
             }
-
         } catch (SQLException e) {
-            System.out.println("❗ DB 연결 또는 처리 중 오류 발생: " + e.getMessage());
+            // DB 연결 시 예외 처리
+            System.out.println("❌ DB 연결 오류: " + e.getMessage());
         }
     }
 }
